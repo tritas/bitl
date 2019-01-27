@@ -1,15 +1,16 @@
-# -*- coding: utf-8 -*-
+# coding=utf-8
 """Utility script to access the ntriples DBpedia dumps from python"""
 # Original author: Olivier Grisel <olivier.grisel@ensta.org>
 # Part of dbpediakit package <https://github.com/ogrisel/dbpediakit>
 # Modifications and additions by Aris Tritas
-# License: MIT
+# License: BSD
 
 import logging
 import os
 import re
 from bz2 import BZ2File
-from collections import defaultdict, namedtuple
+from collections import defaultdict
+from collections import namedtuple
 from random import sample
 from urllib.parse import unquote
 

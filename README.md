@@ -9,6 +9,17 @@ This module provides tools to design experiments and benchmark multi-armed bandi
 The idea is to be able to easily evaluate a new algorithm on multiple problems.
 Either generate a simulated dataset and evaluate online, or load a real dataset and evaluate offline.
 
+The idea is to have the following workflow:
+``` 
+Choose a policy/policies, initialize them
+
+Load dataset or generate synthetic samples
+
+Initialize environment and benchmark parameters (n_runs, results_folder, ...)
+
+Run simulation and get report as plots, comparative HTML&LaTeX table
+```
+
 ## Project directory structure
 * `environment`: defines global parameters, features, feedback graphs etc.
 * `policies`: examples policies for different classes of bandits
@@ -42,15 +53,6 @@ python setup.py develop (--user)
 ```
 
 ## Examples
-The idea is to have the following workflow:
-``` 
-Choose a policy/policies, initialize them
 
-Load dataset or generate synthetic samples
-
-Initialize environment and benchmark parameters (n_runs, results_folder, ...)
-
-Run simulation and get report as plots, comparative HTML&LaTeX table
-```
 
 The `examples` folder will showcase how to use the different functionality.

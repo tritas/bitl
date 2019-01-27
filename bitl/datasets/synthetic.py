@@ -1,5 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import division
+# coding=utf-8
+# Author: Aris Tritas
+# License: BSD 3-clause
 
 import numpy as np
 from sklearn.preprocessing import maxabs_scale

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Author: Aris Tritas <aris.tritas@u-psud.fr>
+# Author: Aris Tritas
 # License: BSD 3-clause
 
 
