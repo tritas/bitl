@@ -1,0 +1,16 @@
+# -*- mode: gitignore; -*-
+
+# Editors
+*~
+\#*\#
+.idea
+
+# Compiled files
+__pycache__
+*.py[cox]
+build
+.cache
+dist
+bitl.egg-info
+
+*.tex

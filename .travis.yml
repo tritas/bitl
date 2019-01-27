@@ -1,0 +1,24 @@
+sudo: false
+
+language: python
+
+python:
+  - "3.5"
+  - "3.6"
+
+cache:
+  pip: true
+  directories:
+  - $HOME/.cache/pip
+  - $HOME/.ccache
+
+dist: trusty
+
+install:
+  - pip install flake8
+  - pip install -r requirements.txt
+  - python setup.py develop
+
+script:
+  - flake8
+  - pytest

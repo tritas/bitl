@@ -1,0 +1,8 @@
+scipy
+numpy
+joblib
+pandas
+matplotlib
+nltk
+networkx
+Jinja2
