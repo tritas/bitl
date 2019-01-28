@@ -27,7 +27,7 @@ class VersionedMatrix(object):
 
         dims = (np.sum(row_blocks), np.sum(col_blocks))
         if dims[0] == 0 or dims[1] == 0:
-            raise ValueError('Matrix dimensions are malformed')
+            raise ValueError("Matrix dimensions are malformed")
 
         rows = np.cumsum(np.hstack(([0], row_blocks)))
         cols = np.cumsum(np.hstack(([0], col_blocks)))
@@ -39,12 +39,13 @@ class VersionedMatrix(object):
             for j in range(len(col_blocks)):  # jth item group
                 try:
                     # reward distribution mean
-                    mu = input_matrix[i][j]['moments'][0]
-                    mat_init[rows[i]:rows[i + 1], cols[j]:cols[j + 1]] = \
-                        np.full((row_blocks[i], col_blocks[j]), mu)
+                    mu = input_matrix[i][j]["moments"][0]
+                    mat_init[
+                        rows[i] : rows[i + 1], cols[j] : cols[j + 1]
+                    ] = np.full((row_blocks[i], col_blocks[j]), mu)
 
-                    ct = input_matrix[i][j]['breakpoint']
-                    cm = input_matrix[i][j]['future_mean']
+                    ct = input_matrix[i][j]["breakpoint"]
+                    cm = input_matrix[i][j]["future_mean"]
                     if ct and cm:
                         if ct in breakpoints:
                             breakpoints[ct].append(((i, j), cm))
@@ -56,7 +57,7 @@ class VersionedMatrix(object):
                     traceback.print_exc()
 
         if dims[0] == 1:
-            print('Reshaping to remove empty row')
+            print("Reshaping to remove empty row")
             mat_init = np.reshape(mat_init, dims[1])
 
         if breakpoints:
@@ -80,17 +81,19 @@ class VersionedMatrix(object):
                     rslice = slice(rows[i], rows[i + 1])
                     cslice = slice(cols[j], cols[j + 1])
                     if i:
-                        reward_mat[v, rslice, cslice] = \
-                            np.full((row_blocks[i], col_blocks[j]), new_mean)
+                        reward_mat[v, rslice, cslice] = np.full(
+                            (row_blocks[i], col_blocks[j]), new_mean
+                        )
                     else:
-                        reward_mat[v, cols[j]:cols[j + 1]] = \
-                            np.full(col_blocks[j], new_mean)
+                        reward_mat[v, cols[j] : cols[j + 1]] = np.full(
+                            col_blocks[j], new_mean
+                        )
                 # Set matrix version number
                 # (modifies one more value than is needed,
                 # which is reset next round (last index is last revision ofc)
-                time_stamps[times[v] - 1:times[v + 1]] = v
+                time_stamps[times[v] - 1 : times[v + 1]] = v
         else:
-            print('Stationary rewards')
+            print("Stationary rewards")
             reward_mat = mat_init
             time_stamps = np.zeros(1)
         self.reward_mat = reward_mat

@@ -1,0 +1,28 @@
+<table class="table table-bordered">
+    <thead>
+    <tr>
+    {% for header in headers %}
+    <th>
+        {{ header }}
+    </th>
+    {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in results %}
+    <tr class="row-elt">
+    {% for elt in row %}
+        {% if loop.first %}
+        <th>
+        {{ elt }}
+        </th>
+        {% else %}
+        <td>
+        {{ elt }}
+        </td>
+        {% endif %}
+     {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>

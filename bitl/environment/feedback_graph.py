@@ -23,8 +23,9 @@ class FeedbackGraph:
         """
         self.experts_dict = experts
         self.feedback_graph = graph
-        assert len(self.experts_dict) == len(self.feedback_graph.nodes()), \
-            'Incompatible number of nodes and experts'
+        assert len(self.experts_dict) == len(
+            self.feedback_graph.nodes()
+        ), "Incompatible number of nodes and experts"
 
     def propagate(self, source, loss):
         """Update each related expert with the loss given to the source

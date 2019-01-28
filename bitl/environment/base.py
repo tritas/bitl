@@ -52,12 +52,14 @@ class GraphEnvironmentMixin(object):
 
 class TreeEnvironmentMixin(GraphEnvironmentMixin):
     """If you ever want to implement MCTS"""
+
     pass
 
 
 class ClusterMixin(object):
     """Both the users and action can admit some underlying cluster/dendogram
     structure."""
+
     def __init__(self, cluster_idx):
         """Initialize the structure with an array of cluster membership."""
         self.cluster_idx = cluster_idx
@@ -66,6 +68,7 @@ class ClusterMixin(object):
 
 class HierarchicalClusterMixin(ClusterMixin):
     """ Model a hierarchical latent structure. """
+
     def __init__(self, dendogram):
         """Initialize the structure with an array of hierarchy membership."""
         self.dendogram = dendogram
@@ -78,6 +81,7 @@ class ContextualMixin(object):
     User/Item environment with some structure.
     add contextual information (i.e. ontological, geo-spatial etc.)
     """
+
     def __init__(self, n_items=0):
         pass
 

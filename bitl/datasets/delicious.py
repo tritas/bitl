@@ -31,16 +31,17 @@ def load_delicious(filepath):
             for ind, line in enumerate(logfile):
                 splits = line.split()
                 # Read the ten tags and their counts
-                tag_counts = np.empty((2, 10), dtype=np.dtype('O'))
+                tag_counts = np.empty((2, 10), dtype=np.dtype("O"))
                 for i, loc in enumerate(range(3, len(splits) - 1, 2)):
                     tag_counts[:, i] = [splits[loc], int(splits[loc + 1])]
 
-                sample = np.array([splits[0], int(splits[1]),
-                                splits[2], tag_counts])
+                sample = np.array(
+                    [splits[0], int(splits[1]), splits[2], tag_counts]
+                )
                 stream_array.append(sample)
     except FileNotFoundError:
         traceback.print_exc()
 
-    stream_array = np.asarray(stream_array, dtype=np.dtype('O'))
+    stream_array = np.asarray(stream_array, dtype=np.dtype("O"))
 
     return stream_array

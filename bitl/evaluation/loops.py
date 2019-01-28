@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 # Author: Aris Tritas <aris.tritas@u-psud.fr>
 # License: BSD 3-clause
+""" Most of these loops' code should probably go into the step() function of the environments. """
 from time import time
 
 import numpy as np
-from numpy import clip, empty
-from numpy.random import binomial, normal, randint
 
 from ..utils.math import noise
 
@@ -58,69 +57,80 @@ def contextual_kernel(policy, stream, horizon):
 """
 
 
-def adversarial_kernel(policy, stream, reward_matrix, horizon):
-    """
+def adversarial_kernel(policy, stream, reward_matrix, horizon=None):
+    """ Adversarial game. No matter what the bandit chooses, it gets
+    a reward sequence chosen by an adversary.
 
     :param policy:
     :param stream:
     :param reward_matrix:
     :param horizon:
     :return:
+
+    Reference
+    ---------
+    See for example
+    http://banditalgs.com/2016/10/01/adversarial-bandits/
     """
+    horizon = horizon or len(reward_matrix)
     optimal_mean = reward_matrix.max()
-    reward = empty(horizon)
-    regret = empty(horizon)
+    instant_reward = []
+    instant_regret = []
 
     for t in range(horizon):
-        adversary_arm, v, reward_t = stream[t]
+        adversary_action, adversary_reward = stream[t]
 
-        action_t = policy.select_arm()
-        policy.update(action_t, reward)
+        action = policy.select_arm()
+        policy.update(action, adversary_reward)
 
-        reward[t] = reward_t
-        regret[t] = optimal_mean - reward_matrix[action_t]
+        instant_reward.append(adversary_reward)
+        instant_regret.append(optimal_mean - reward_matrix[action])
 
-    return reward, regret
+    instant_reward = np.array(instant_reward)
+    instant_regret = np.array(instant_regret)
+
+    return instant_reward, instant_regret
 
 
 def base_kernel(policy, signal, reward_matrix, horizon):
     """ Bernouilli rewards and a single user """
     optimal_mean = reward_matrix.max()
-    reward = empty(horizon)
-    regret = empty(horizon)
+    reward = np.empty(horizon)
+    regret = np.empty(horizon)
 
     for t in range(horizon):
-        action_t = policy.select_arm()
-        reward_t = binomial(1, reward_matrix[action_t]) + noise()
-        reward_t = clip(reward_t, 0, 1)
-        policy.update(action_t, reward_t)
+        action = policy.select_arm()
+        mean = reward_matrix[action]
+        reward_t = np.random.binomial(1, mean) + noise()
+        reward_t = np.clip(reward_t, 0, 1)
+        policy.update(action, reward_t)
 
         reward[t] = reward_t
-        regret[t] = optimal_mean - reward_matrix[action_t]
+        regret[t] = optimal_mean - reward_matrix[action]
 
     return reward, regret
 
 
-def yahoo_kernel(policy, signal, horizon, jitter, **side_info):
+def yahoo_kernel(policy, signal, horizon, sigma, **side_info):
     n_valid = 0
     payoff = 0
     policy.initialize(**side_info)
     for i in range(horizon * policy.n_arms):
-        ind = randint(horizon)
-        item, reward, features, _ = signal[ind]
-        feat_vect = features.toarray()[0].astype(float)
+        ind = np.random.randint(horizon)
+        stream_action, reward, features, _ = signal[ind]
+        features = features.toarray()[0].astype(float)
         # feat_vect, usr, item, reward = signal[ind]
 
-        if jitter:
-            feat_vect += normal(0, jitter, feat_vect.shape)
+        if sigma:
+            features += np.random.normal(0, sigma, features.shape)
 
-        predicted_item = policy.select_arm(feat_vect)
+        action = policy.select_arm(features)
 
-        if item == predicted_item:
+        if stream_action == action:
             n_valid += 1
             payoff += reward
 
-        policy.update(item, reward)
+        policy.update(stream_action, reward)
     return n_valid, payoff
 
 
@@ -154,13 +164,11 @@ def bootstrap_with_side_information(policy, signal, env, horizon, bootstrap):
     payoff = np.zeros(bootstrap)
     for b in range(bootstrap):
         policy.initialize()
-        for i in range(horizon * env.n_actions):
-            ind = randint(horizon)
+        for _ in range(horizon * env.n_actions):
+            ind = np.random.randint(horizon)
             # Need to unpack one-by-one as python2 does not support
             # start unpack (starred expression assignment)
-            item = signal[ind][0]
-            reward = signal[ind][1]
-            side_information = signal[ind][2:]
+            item, reward, *side_information = signal[ind]
             policy_item = policy.choose(*side_information)
             if item == policy_item:
                 n_valid[b] += 1
@@ -168,8 +176,9 @@ def bootstrap_with_side_information(policy, signal, env, horizon, bootstrap):
             policy.update(item, reward)
 
 
-def discovery_kernel(agent, n_runs, horizon, is_interesting, step_features,
-                     theta_star):
+def discovery_kernel(
+    agent, n_runs, horizon, is_interesting, step_features, theta_star
+):
     """
 
     :param agent:
@@ -180,8 +189,8 @@ def discovery_kernel(agent, n_runs, horizon, is_interesting, step_features,
     :param theta_star:
     :return:
     """
-    n_found = np.zeros((n_runs, horizon), dtype=np.uint8)
-    runtime = np.zeros(n_runs, dtype=np.float64)
+    n_found = np.zeros((n_runs, horizon), dtype=np.int32)
+    runtime = np.zeros(n_runs, dtype=np.float32)
     for run in range(n_runs):
         t0 = time()
         agent.initialize()
@@ -189,15 +198,15 @@ def discovery_kernel(agent, n_runs, horizon, is_interesting, step_features,
         for t in range(horizon):
             item = agent.choose()
 
-            if item is not None and is_interesting[item]:
-                n_found[run, t] = 1
-            elif item is None:
+            if not item:
                 continue
+            if item and is_interesting[item]:
+                n_found[run, t] = 1
 
-            rm = np.dot(theta_star, step_features[t]) + noise()
+            reward = np.dot(theta_star, step_features[t]) + noise()
             # Rewards must be in [-1, 1] for the GaussianTS prior update
-            rm = np.clip(rm, -1, 1)
-            agent.update(item, rm)
+            reward = np.clip(reward, -1, 1)
+            agent.update(item, reward)
         runtime[run] = time() - t0
 
     found = n_found.mean(axis=0).cumsum()

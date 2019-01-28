@@ -40,7 +40,7 @@ def multiplot(lines_tuple, horizon, title, filepath, xy_labels=None):
     """
     x_axis = np.arange(0.0, horizon, 1.0)
     for alg_name, data in lines_tuple:
-        plt.plot(x_axis, data, label='{}'.format(str(alg_name)))
+        plt.plot(x_axis, data, label="{}".format(str(alg_name)))
     plt.title(title)
     plt.xlabel(xy_labels[0])
     plt.ylabel(xy_labels[1])
@@ -61,7 +61,8 @@ def plot_tsne_embeddings(matrix, title, filepath, verbose):
     :param verbose: bool
     """
     from sklearn.manifold import TSNE
-    tsne = TSNE(verbose=verbose, metric='precomputed')
+
+    tsne = TSNE(verbose=verbose, metric="precomputed")
     embeddings = tsne.fit_transform(matrix)
     plt.scatter(embeddings[:, 0], embeddings[:, 1])
     plt.title(title)
@@ -69,8 +70,9 @@ def plot_tsne_embeddings(matrix, title, filepath, verbose):
     plt.clf()
 
 
-def save_graph_plot(graph, path, title="Graph Connectivity",
-                    include_labels=True):
+def save_graph_plot(
+    graph, path, title="Graph Connectivity", include_labels=True
+):
     """
     Draws a NetworkX graph and saves it to the filesystem
     :param graph: Graph instance

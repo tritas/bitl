@@ -22,7 +22,9 @@ class UCBF:
             if self.beta < 1 and self.mu_star < 1:
                 self.n_arms = round(self.horizon ** (self.beta / 2))
             else:
-                self.n_arms = round(self.horizon ** (self.beta / (self.beta + 1)))
+                self.n_arms = round(
+                    self.horizon ** (self.beta / (self.beta + 1))
+                )
         else:
             self.n_arms = kwargs["K"]
 

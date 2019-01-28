@@ -9,6 +9,7 @@ from scipy.sparse import csr_matrix
 
 NUM_FEATURES = 136
 
+
 def load_clicklog(filepath, n_samples=None):
     """
     Parse Yahoo! Click log compressed archives
@@ -48,7 +49,7 @@ def load_clicklog(filepath, n_samples=None):
                 n_splits = len(splits)
                 timestamp = int(splits[0])
                 click = int(splits[2])
-                article_id = int(splits[1].split('-')[1])
+                article_id = int(splits[1].split("-")[1])
                 if article_id in items_index:
                     article_id = items_index[article_id]
                 else:
@@ -60,15 +61,16 @@ def load_clicklog(filepath, n_samples=None):
                 i = 5
                 # Parsing feature vector
                 while i < n_splits:
-                    if splits[i][0] != '|':
+                    if splits[i][0] != "|":
                         features[int(splits[i]) - 1] = 1
                     i += 1
-                sample = np.array([
-                    article_id, click, csr_matrix(features), timestamp])
+                sample = np.array(
+                    [article_id, click, csr_matrix(features), timestamp]
+                )
                 stream_array.append(sample)
     except FileNotFoundError:
         traceback.print_exc()
 
-    stream_array = np.asarray(stream_array, dtype=np.dtype('O'))
+    stream_array = np.asarray(stream_array, dtype=np.dtype("O"))
 
     return stream_array, items_counter

@@ -86,5 +86,7 @@ class klUCB:
         self._payoffs[action] += reward
         self._n_draws[action] += 1
         self._means[action] = self._payoffs[action] / self._n_draws[action]
-        self._ucb[action] = klucb(self._n_draws[action], self._means[action], self._tot_draws)
+        self._ucb[action] = klucb(
+            self._n_draws[action], self._means[action], self._tot_draws
+        )
         self._t += 1

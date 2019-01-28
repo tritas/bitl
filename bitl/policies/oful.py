@@ -12,7 +12,18 @@ class OFUL(object):
     Optimism-in-the-face-of-Uncertainty linear bandits
     """
 
-    def __init__(self, n_actions, action_features, horizon, dimensions, lambda_=1.0, delta=0.001, C=1.0, R=0.5, S=0.5):
+    def __init__(
+        self,
+        n_actions,
+        action_features,
+        horizon,
+        dimensions,
+        lambda_=1.0,
+        delta=0.001,
+        C=1.0,
+        R=0.5,
+        S=0.5,
+    ):
         self.action_features = np.asarray(action_features)
         self.n_actions = n_actions
         self.n_features = dimensions
@@ -74,7 +85,9 @@ class OFUL(object):
         if sparsity_cond or det_growth_cond:
             # Compute the ellipsoidal bound centered at theta_hat
             temp = np.linalg.det(self.lambda_ * np.eye(self.t))
-            log_det = np.sqrt(2 * np.log((np.sqrt(self._detVt) * temp) / self.delta))
+            log_det = np.sqrt(
+                2 * np.log((np.sqrt(self._detVt) * temp) / self.delta)
+            )
             bound = self.R * log_det + np.sqrt(self.lambda_) * self.S
 
             # Optimize the objective function and return the best arm
@@ -99,7 +112,9 @@ class OFUL(object):
                     self._theta_star = theta_est
                     max_obj = obj[arm]
                     self._detV_tau = self._detVt
-                    self.S = np.sqrt(np.dot(self._theta_star.T, self._theta_star))
+                    self.S = np.sqrt(
+                        np.dot(self._theta_star.T, self._theta_star)
+                    )
 
             return np.argmax(obj)
         else:

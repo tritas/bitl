@@ -28,7 +28,7 @@ def contextual_batch(reward_matrix, n_samples):
     n_users, n_items = reward_matrix.shape
     I = np.random.randint(0, n_users, n_samples)
     J = np.random.randint(0, n_items, n_samples)
-    stream_array = np.empty((n_samples, 3), dtype=np.dtype('O'))
+    stream_array = np.empty((n_samples, 3), dtype=np.dtype("O"))
     for t in range(n_samples):
         i = I[t]
         j = J[t]
@@ -75,7 +75,8 @@ def linear_batch(n_samples, dims, mixtures, noise_var):
     n_users, n_features, n_items = dims
 
     usr_matrix = gaussian_mixture_matrix(
-        (n_users, n_features), mixtures, rescale_clusters=True)
+        (n_users, n_features), mixtures, rescale_clusters=True
+    )
     item_features = np.random.randn(n_items, n_features)
     noise_array = np.random.randn(n_users, n_items) * noise_var
     reward_mat = np.dot(usr_matrix, item_features.T) + noise_array
@@ -96,10 +97,10 @@ def linear_batch(n_samples, dims, mixtures, noise_var):
     return usr_matrix, item_features, stream_array, reward_mat
 
 
-'''
+"""
 TODO: Two template models
 - Heterogenous space of small communities (delicious, reddit etc)
-- One large community and some smaller ones (news etc) '''
+- One large community and some smaller ones (news etc) """
 
 
 def gaussian_mixture_matrix(dims, tupls_lst, rescale_clusters=False):
@@ -159,8 +160,11 @@ def stochastic_batch(reward_means, n_samples):
     n_samples: int
     """
     if not reward_means.ndim == 1:
-        raise ValueError('Reward vector should be 1-dimensional, got shape {}'
-                         .format(reward_means.shape))
+        raise ValueError(
+            "Reward vector should be 1-dimensional, got shape {}".format(
+                reward_means.shape
+            )
+        )
 
     n_items = reward_means.shape[0]
     indices = np.random.randint(0, n_items - 1, n_samples)
@@ -174,30 +178,34 @@ def stochastic_batch(reward_means, n_samples):
     return stream
 
 
-def versioned_stochastic_batch(reward_mat, horizon, versions=()):
+def versioned_stochastic_batch(reward_matrix, horizon, versions=()):
     """  Bernouilli arm rewards """
-    if not reward_mat.ndim:
+    if not reward_matrix.ndim:
         raise ValueError
-    elif reward_mat.ndim == 1:
-        n_items = reward_mat.shape[0]
+    elif reward_matrix.ndim == 1:
+        n_items = reward_matrix.shape[0]
         versions = np.zeros(horizon)
-    elif reward_mat.ndim == 2:
-        n_versions, n_items = reward_mat.shape
+    elif reward_matrix.ndim == 2:
+        n_versions, n_items = reward_matrix.shape
         # Padding timestamps with last version value
         if len(versions) < horizon:
-            padding = np.full(horizon - len(versions), versions[-1],
-                              dtype=np.int32)
+            padding = np.full(
+                horizon - len(versions), versions[-1], dtype=np.int32
+            )
             versions = np.hstack((versions, padding))
     else:
-        print('Matrix shape is {}'.format(reward_mat.shape))
+        print("Matrix shape is {}".format(reward_matrix.shape))
         # Assuming the user index is on the second dimension
         try:
-            n_items, _, n_versions = reward_mat.shape
-            if reward_mat.shape[1] > 1:
-                print('More than one user for the stochastic setting.'
-                      'Matrix shape is {}'.format(reward_mat.shape))
-                reward_mat = np.reshape(
-                    reward_mat[:, 0, :], (n_items, n_versions))
+            n_items, _, n_versions = reward_matrix.shape
+            if reward_matrix.shape[1] > 1:
+                print(
+                    "More than one user for the stochastic setting."
+                    "Matrix shape is {}".format(reward_matrix.shape)
+                )
+                reward_matrix = np.reshape(
+                    reward_matrix[:, 0, :], (n_items, n_versions)
+                )
         except ValueError as ve:
             raise ve
 
@@ -207,7 +215,7 @@ def versioned_stochastic_batch(reward_mat, horizon, versions=()):
     batch = np.empty((horizon, 3), dtype=np.int32)
     for i in range(horizon):
         # Noisy rewards
-        reward = reward_mat[versions[i], items_indx[i]] + noise()
+        reward = reward_matrix[versions[i], items_indx[i]] + noise()
         if reward < uniform_draws[i]:
             batch[i] = np.array([items_indx[i], versions[i], 0])
         else:
@@ -311,7 +319,7 @@ def two_item_groups(n_items, groups_ratio=0.4):
     return means
 
 
-def latent_linear_bandits(N, M, k, sparsity=0, var=1.):
+def latent_linear_bandits(N, M, k, sparsity=0, var=1.0):
     """ Build a random reward matrix from a basis on its rows and columns
     generated from a low-dimensional space.
 

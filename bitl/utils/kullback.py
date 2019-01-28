@@ -45,7 +45,7 @@ def klGauss(x, y, sig2=0.25):
     return (x - y) * (x - y) / (2 * sig2)
 
 
-def klucb(x, d, div, upperbound, lowerbound=-float('inf'), precision=1e-6):
+def klucb(x, d, div, upperbound, lowerbound=-float("inf"), precision=1e-6):
     """The generic klUCB index computation.
 
     Input args.:
@@ -68,7 +68,7 @@ def klucb(x, d, div, upperbound, lowerbound=-float('inf'), precision=1e-6):
     return (l + u) / 2
 
 
-def klucbGauss(x, d, sig2=1., precision=0.):
+def klucbGauss(x, d, sig2=1.0, precision=0.0):
     """klUCB index computation for Gaussian distributions.
 
     Note that it does not require any search.
@@ -85,7 +85,7 @@ def klucbPoisson(x, d, precision=1e-6):
 
 def klucbBern(x, d, precision=1e-6):
     """klUCB index computation for Bernoulli distributions."""
-    upperbound = min(1., klucbGauss(x, d))
+    upperbound = min(1.0, klucbGauss(x, d))
     # upperbound = min(1.,klucbPoisson(x,d)) # also safe, and better ?
     return klucb(x, d, klBern, upperbound, precision)
 
@@ -94,8 +94,7 @@ def klucbExp(x, d, precision=1e-6):
     """klUCB index computation for exponential distributions."""
     if d < 0.77:
         # safe, klexp(x,y) >= e^2/(2*(1-2e/3)) if x=y(1-e)
-        upperbound = x / (
-            1 + 2. / 3 * d - sqrt(4. / 9 * d * d + 2 * d))
+        upperbound = x / (1 + 2.0 / 3 * d - sqrt(4.0 / 9 * d * d + 2 * d))
     else:
         upperbound = x * exp(d + 1)
     if d > 1.61:
@@ -113,7 +112,7 @@ def maxEV(p, V, klMax):
     Reference: Section 3.2 of [Filippi, Cappé & Garivier - Allerton, 2011].
     """
     Uq = np.zeros(len(p))
-    Kb = p > 0.
+    Kb = p > 0.0
     K = ~Kb
     if any(K):
         # Do we need to put some mass on a point where p is zero?
@@ -122,15 +121,16 @@ def maxEV(p, V, klMax):
         J = K & (V == eta)
         if eta > max(V[Kb]):
             y = np.dot(p[Kb], np.log(eta - V[Kb])) + log(
-                np.dot(p[Kb], (1. / (eta - V[Kb]))))
+                np.dot(p[Kb], (1.0 / (eta - V[Kb])))
+            )
             # print "eta = " + str(eta) + ", y="+str(y);
             if y < klMax:
                 rb = exp(y - klMax)
                 Uqtemp = p[Kb] / (eta - V[Kb])
                 Uq[Kb] = rb * Uqtemp / sum(Uqtemp)
                 # or j=min([j for j in range(k) if J[j]]); Uq[j] = r
-                Uq[J] = (1. - rb) / sum(J)
-                return (Uq)
+                Uq[J] = (1.0 - rb) / sum(J)
+                return Uq
     # Here, only points where p is strictly positive (in Kb)
     # will receive non-zero mass.
     if any(abs(V[Kb] - V[Kb][0]) > 1e-8):
@@ -155,7 +155,7 @@ def reseqp(p, V, klMax):
     l = mV + 0.1
     tol = 1e-4
     if mV < min(V) + tol:
-        return float('inf')
+        return float("inf")
     u = np.dot(p, (1 / (l - V)))
     y = np.dot(p, np.log(l - V)) + log(u) - klMax
     # print "l="+str(l)+", y="+str(y);
@@ -168,39 +168,4 @@ def reseqp(p, V, klMax):
         u = np.dot(p, (1 / (l - V)))
         y = np.dot(p, np.log(l - V)) + log(u) - klMax
         # print "l="+str(l)+", y="+str(y); # function
-    return (l)
-
-
-if __name__ == "__main__":
-    """Code for debugging purposes."""
-    # from matplotlib.pyplot import *
-    # t = linspace(0, 1)
-    # subplot(2, 1, 1)
-    # plot(t, kl(t, 0.6))
-    # subplot(2, 1, 2)
-    # d = linspace(0, 1, 100)
-    # plot(d, [klucb(0.3, dd) for dd in d])
-    # show()
-    print(klucbGauss(0.9, 0.2))
-    print(klucbBern(0.9, 0.2))
-    print(klucbPoisson(0.9, 0.2))
-    p = np.array([0.3, 0.5, 0.2])
-    p = np.array([0., 1.])
-    V = np.array([10, 3])
-    klMax = 0.1
-
-    p = np.array(
-        [0.11794872, 0.27948718, 0.31538462, 0.14102564,
-         0.0974359, 0.03076923, 0.00769231, 0.01025641, 0.])
-    V = np.array([0, 1, 2, 3, 4, 5, 6, 7, 10])
-    klMax = 0.0168913409484
-
-    print("eta = " + str(reseqp(p, V, klMax)))
-    print("Uq = " + str(maxEV(p, V, klMax)))
-
-    x = 2
-    d = 2.51
-    print("klucb = " + str(klucbExp(x, d)))
-    ub = x / (1 + 2. / 3 * d - sqrt(4. / 9 * d * d + 2 * d))
-    print("majoration = " + str(ub))
-    print("maj bete = " + str(x * exp(d + 1)))
+    return l

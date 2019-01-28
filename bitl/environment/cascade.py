@@ -6,6 +6,7 @@ from .base import ContextualMixin
 
 # TODO(aris): Different types of diffusion processes.
 
+
 class CascadeEnvironment(GraphEnvironmentMixin, ContextualMixin, Environment):
     """Modeling graph diffusion processes timestep per timestep.
     What interests us is how well we can learn the real influence

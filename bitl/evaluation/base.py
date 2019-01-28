@@ -7,7 +7,8 @@ from time import time
 import numpy as np
 from ..evaluation.loops import base_kernel
 from ..policies.base import Policy
-from ..utils.imports import policy_name
+from ..policies.base import policy_name
+from ..utils.export import render_simple
 from joblib import Parallel, delayed
 
 
@@ -15,23 +16,28 @@ def _run(eval_kernel, policy, signal, rewards, horizon, **side_info):
     policy.initialize()
     start = time()
     reward_arr, regret_arr = eval_kernel(
-        policy, signal, rewards, horizon, **side_info)
+        policy, signal, rewards, horizon, **side_info
+    )
     runtime = time() - start
     return reward_arr, regret_arr, runtime
 
 
-def _replay(eval_kernel,
-            policy,
-            signal,
-            rewards,
-            horizon,
-            n_runs,
-            n_jobs,
-            verbosity,
-            **side_info):
-    """Replay a policy sequentially with the number of jobs defined
+def _replay(
+    eval_kernel,
+    policy,
+    signal,
+    rewards,
+    horizon=None,
+    n_runs=1,
+    n_jobs=1,
+    verbose=0,
+    **side_info
+):
+    """Replay a policy on an environemnt for a number of runs and with a certain number of jobs.
+
     :param policy: The policy to replay
-    :return: A metrics object containing information about the run
+    :return:
+    A metrics object containing information about the run
     """
     """
     if 'time_lapses' in kwargs:
@@ -40,40 +46,41 @@ def _replay(eval_kernel,
     else: # Case of linear rewards
         l = np.zeros(horizon, dtype=np.int32)
     """
-    if n_jobs == 1:
-        # Run on a single thread
-        regret = np.empty((n_runs, horizon), dtype=np.float32)
-        reward = np.empty((n_runs, horizon), dtype=np.float32)
-        runtimes = np.zeros(n_runs, dtype=np.float64)
-        for sim in range(n_runs):
-            reward[sim], regret[sim], runtimes[sim] = _run(
-                eval_kernel, policy, signal, rewards, horizon, **side_info)
-    else:
-        # Parallelize runs
-        results = Parallel(n_jobs=n_jobs, verbose=verbosity)(
-            delayed(_run)(eval_kernel, policy, signal, rewards, horizon)
-            for _ in range(n_runs))
-        reward_tup, regret_tup, runtimes_tup = zip(*results)
-        regret = np.stack(regret_tup)
-        reward = np.stack(reward_tup)
-        runtimes = np.stack(runtimes_tup)
+    horizon = horizon or len(signal)
+    results = Parallel(n_jobs=n_jobs, verbose=verbose)(
+        delayed(_run)(eval_kernel, policy, signal, rewards, horizon)
+        for _ in range(n_runs)
+    )
+    reward_tup, regret_tup, runtimes_tup = zip(*results)
+    regret = np.stack(regret_tup)
+    reward = np.stack(reward_tup)
+    runtimes = np.stack(runtimes_tup)
 
-    replay_metrics = {
-        'total_runtime': runtimes.sum(),
-        'mean_reward': reward.mean(axis=0),
-        'mean_regret': regret.mean(axis=0),
-        'cumulative_regret': regret.mean(axis=0).cumsum()
+    metrics = {
+        "total_runtime": runtimes.sum(),
+        "mean_reward": reward.mean(axis=0),
+        "mean_regret": regret.mean(axis=0),
+        "cumulative_regret": regret.mean(axis=0).cumsum(),
     }
-    return replay_metrics
+    return metrics
 
 
 class PolicyEvaluation(object):
     """ The main evaluation object. """
+
     metrics = dict()
 
-    def __init__(self, rewards=None, signal=None, evaluation_kernel=None,
-                 n_runs=100, horizon=10000, random_seed=1,
-                 n_jobs=1, verbose=0):
+    def __init__(
+        self,
+        rewards=None,
+        signal=None,
+        evaluation_kernel=None,
+        n_runs=100,
+        horizon=10000,
+        random_seed=1,
+        n_jobs=1,
+        verbose=0,
+    ):
         """
         Parameters
         ----------
@@ -138,8 +145,8 @@ class PolicyEvaluation(object):
     def dry_run(self):
         """ Measuring policy evaluator overhead """
         self.replay(Policy())
-        self.dry_runtime = self.metrics['DummyPolicy']['total_runtime']
-        del self.metrics['DummyPolicy']
+        self.dry_runtime = self.metrics["DummyPolicy"]["total_runtime"]
+        del self.metrics["DummyPolicy"]
 
     def replay(self, policy, **side_info):
         """
@@ -147,30 +154,42 @@ class PolicyEvaluation(object):
         parallel calls' memory is well separated.
         :param policy:
         """
-        metrics = _replay(self.eval_kernel, policy, self.signal,
-                          self.rewards, self.horizon, self.n_runs,
-                          self.n_jobs, self.verbosity, **side_info)
+        metrics = _replay(
+            self.eval_kernel,
+            policy,
+            self.signal,
+            self.rewards,
+            self.horizon,
+            self.n_runs,
+            self.n_jobs,
+            self.verbosity,
+            **side_info
+        )
         self.metrics[policy_name(policy)] = metrics
 
+    # TODO(aris): dissociate the output from the main evaluation code
     def print_metrics(self):
         """ Print the results of the latest replay """
         for algorithm, metrics in self.metrics.items():
-            print('[{}] Runtime: {:.3f} s/run -'
-                  'Final Regret: {:.1f}'
-                  .format(algorithm,
-                          metrics['total_runtime'],
-                          metrics['cumulative_regret'][-1]))
+            print(
+                "[{}] Runtime: {:.3f} s/run -"
+                "Final Regret: {:.1f}".format(
+                    algorithm,
+                    metrics["total_runtime"],
+                    metrics["cumulative_regret"][-1],
+                )
+            )
 
+    # TODO(aris): get rid of that
     def output_html(self, policy):
         """ Metrics to HTML """
         algorithm = policy_name(policy)
         metrics = self.metrics[algorithm]
-        html = '<br/><strong>{}</strong>'.format(algorithm)
-        html += '<br/> Runtime: {} <br/> Final Regret: {}'\
-            .format(metrics['total_runtime'],
-                    metrics['cumulative_regret'][-1])
+        metrics["final_regret"] = metrics["cumulative_regret"][-1]
+        html = render_simple(metrics, "synthetic.html")
         return html
 
-    def output_tex(self):
+    # TODO(aris): get rid of that
+    def output_tex(self, policy):
         """ Metrics to LaTeX"""
         raise NotImplementedError

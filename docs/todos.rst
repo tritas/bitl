@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
-=====
 Todos
 =====
 
+* tests
+* ci/cd: code coverage, automatic builds
+
 Synthetic datasets
 ------------------
+* Datasets as iterators
 * Reward blocks: row/col multiplicity
 * Matrix sensing techiques (like universal singular value sampling)
 * Item features: sparsify, clusters of interesting and uninteresting actions

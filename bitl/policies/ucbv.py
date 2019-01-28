@@ -23,7 +23,9 @@ class UCBV:
         if self.beta < 1 and self.mu_star < 1:
             self.n_arms = int(round(self.horizon ** (self.beta / 2)))
         else:
-            self.n_arms = int(round(self.horizon ** (self.beta / (self.beta + 1))))
+            self.n_arms = int(
+                round(self.horizon ** (self.beta / (self.beta + 1)))
+            )
 
         self.mu_hat = None
         self.v = None

@@ -52,9 +52,13 @@ def graph_degree_stats(graph):
         A formatted string with graph degree statistics
     """
     degrees = np.array(list(graph.degree().values()))
-    stats = '<Min: {}, Max: {}, Mean: {}, Var: {}, Std.Dev:{}>' \
-        .format(degrees.min(), degrees.max(), degrees.mean(),
-                degrees.var().round(2), degrees.std().round(2))
+    stats = "<Min: {}, Max: {}, Mean: {}, Var: {}, Std.Dev:{}>".format(
+        degrees.min(),
+        degrees.max(),
+        degrees.mean(),
+        degrees.var().round(2),
+        degrees.std().round(2),
+    )
     return stats
 
 
@@ -82,7 +86,8 @@ def sparsify(X, sparsity):
         sparsity = coef_to_components(sparsity, n_samples)
         for i in range(n_samples):
             sparse_is = np.random.choice(
-                n_features - 1, size=sparsity, replace=False)
+                n_features - 1, size=sparsity, replace=False
+            )
             X[i, sparse_is] = 0
     else:
         raise NotImplementedError
@@ -92,7 +97,7 @@ def sparsify(X, sparsity):
 
 def replace_with_noise(matrix, row_sparsity, noise_level):
     """ Replace some means with gaussian noise  """
-    assert matrix.ndim == 2, 'Only 2D matrix implemented'
+    assert matrix.ndim == 2, "Only 2D matrix implemented"
     u, v = matrix.shape
     for i in range(u):
         rnoise = np.random.rand(*matrix.shape) * noise_level
@@ -133,32 +138,35 @@ def barabasi_albert(n, m):
 
 
 def graph_laplacian_eig(graph):
+    """ Compute a graph laplacian's eigenvalues and eigenvectors.
+
+    Parameters
+    ----------
+    graph: Graph instance
+
+    Return
+    ------
+    sigma: eigenvalues
+    u: eigenvectors
     """
-    Compute the laplacian eigenvalues and eigenvectors of a graph
-    :param graph: Graph instance
-    :return: Tuple of eigenvalues and eigenvectors
-    """
-    logging.info('Computing graph eigendecomposition')
+    logger.info("Computing graph eigendecomposition")
     t0 = time()
     # Compute graph Laplacian
-    L = laplacian_matrix(graph)
+    laplacian = laplacian_matrix(graph)
     # Compute full eigendecomposition
-    u, sigma, v = svds(L, k=L.shape[0])
-    logging.info('done in {:.3f}s.'.format(time() - t0))
+    u, sigma, v = svds(laplacian, k=laplacian.shape[0])
+    logger.info("done in {:.3f}s.".format(time() - t0))
     return sigma, u
 
 
-def fill_reward_matrix(values_tupl_lst, latent_dim=1):
-    """ Matrix filled with some values. Each value has an arity of n_rows """
-    rewards = None
-
-    for n_rows, reward_expectation in values_tupl_lst:
-        submatrix = np.full((n_rows, latent_dim),
-                            reward_expectation,
-                            dtype=np.float32)
-        if rewards:
-            rewards = np.hstack((rewards, submatrix))
-        else:
-            rewards = submatrix
-
+def fill_reward_matrix(values_tuples, dimensions=1):
+    """ Fill matrix with some values (e.g. reward expectation).
+    Each value has an arity of n_rows and is copied across the 1st axis.
+    """
+    rewards = np.hstack(
+        [
+            np.full((num_rows, dimensions), value, dtype=np.float32)
+            for num_rows, value in values_tuples
+        ]
+    )
     return rewards

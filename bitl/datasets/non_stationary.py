@@ -21,27 +21,27 @@ def truemodel3(x):
 
 
 def truemodel4(x):
-    return 1, x, x * x, sin(x / 10.)
+    return 1, x, x * x, sin(x / 10.0)
 
 
 def truemodel5(x):
-    return 1, x, sin(x / 10.), sin(x / 20.)
+    return 1, x, sin(x / 10.0), sin(x / 20.0)
 
 
 def truemodel6(x):
-    return 1, sin(6 * x / 5.), sin(6 * x / 11.)
+    return 1, sin(6 * x / 5.0), sin(6 * x / 11.0)
 
 
 def truemodel7(x):
-    return 1, sin(6 * x / 5.), sin(6 * x / 11.), sin(6 * x / 19.)
+    return 1, sin(6 * x / 5.0), sin(6 * x / 11.0), sin(6 * x / 19.0)
 
 
 # ----------------------------------------------------------------------------
 #  Signal Generation
 # ----------------------------------------------------------------------------
-def non_stationary_signal(NumberOfPieces=5,
-                          MinLengthofPiece=30,
-                          MaxLengthofPiece=50):
+def non_stationary_signal(
+    NumberOfPieces=5, MinLengthofPiece=30, MaxLengthofPiece=50
+):
     # (20, 20, 40)
     # Parameter: number of pieces, minimum  and maximum length  of a piece
     piecewiseModels = []
@@ -54,41 +54,69 @@ def non_stationary_signal(NumberOfPieces=5,
             mode = randint(8, 20)
         else:
             mode = randint(6, 8)  # (1,8)
-            result = [startChange, truemodel1,
-                      (randn(), randn() / 2),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel1,
+                (randn(), randn() / 2),
+                randint(1, 3) * rand(),
+            ]
         if mode == 1:
-            result = [startChange, truemodel1,
-                      (randn(), randn() / 2),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel1,
+                (randn(), randn() / 2),
+                randint(1, 3) * rand(),
+            ]
         if mode == 2:
-            result = [startChange, truemodel2,
-                      (randn(), randn() / 2, randn() / 6),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel2,
+                (randn(), randn() / 2, randn() / 6),
+                randint(1, 3) * rand(),
+            ]
         if mode == 3:
-            result = [startChange, truemodel3,
-                      (randn(), randn() / 2, randn() / 6, randn() / 24),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel3,
+                (randn(), randn() / 2, randn() / 6, randn() / 24),
+                randint(1, 3) * rand(),
+            ]
         if mode == 4:
-            result = [startChange, truemodel4,
-                      (randn(), randn() / 2, randn() / 24, 10 * randn()),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel4,
+                (randn(), randn() / 2, randn() / 24, 10 * randn()),
+                randint(1, 3) * rand(),
+            ]
         if mode == 5:
-            result = [startChange, truemodel5,
-                      (randn(), randn() / 2, 10 * randn(), 10 * randn()),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel5,
+                (randn(), randn() / 2, 10 * randn(), 10 * randn()),
+                randint(1, 3) * rand(),
+            ]
         if mode == 6:
-            result = [startChange, truemodel6,
-                      (randn(), randn() / 2, 10 * randn()),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel6,
+                (randn(), randn() / 2, 10 * randn()),
+                randint(1, 3) * rand(),
+            ]
         if mode == 7:
-            result = [startChange, truemodel7,
-                      (randn(), randn() / 2, 10 * randn(), 10 * randn()),
-                      randint(1, 3) * rand()]
+            result = [
+                startChange,
+                truemodel7,
+                (randn(), randn() / 2, 10 * randn(), 10 * randn()),
+                randint(1, 3) * rand(),
+            ]
         if (mode >= 8) and (change > 1):
             cpast = randint(0, change)
-            result = [startChange, piecewiseModels[cpast][1],
-                      piecewiseModels[cpast][2], piecewiseModels[cpast][3]]
+            result = [
+                startChange,
+                piecewiseModels[cpast][1],
+                piecewiseModels[cpast][2],
+                piecewiseModels[cpast][3],
+            ]
 
         piecewiseModels.append(result)
         startChange += randint(MinLengthofPiece, MaxLengthofPiece)
@@ -113,8 +141,9 @@ def non_stationary_signal(NumberOfPieces=5,
         if change + 1 < NumberOfPieces:
             if x >= piecewiseModels[change + 1][0]:
                 change += 1
-        [startChange, trueModel, trueModelParameter, sigma] = \
-            piecewiseModels[change]
+        [startChange, trueModel, trueModelParameter, sigma] = piecewiseModels[
+            change
+        ]
         f = dot(trueModelParameter, trueModel(x - startChange))
 
         FObservationValues.append(f)
