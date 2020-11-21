@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from bitl.datasets.synthetic import stochastic_batch
+from bitl.datasets.synthetic import make_stochastic_batch_dataset
 
 
 def test_bernouilli():
@@ -11,5 +11,5 @@ def test_bernouilli():
     """
     horizon = 100
     means = np.array([0.55, 0.60])
-    signal = stochastic_batch(means, horizon)
+    signal = make_stochastic_batch_dataset(means, horizon)
     assert signal.shape == (horizon, len(means))

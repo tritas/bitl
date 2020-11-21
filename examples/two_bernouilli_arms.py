@@ -5,7 +5,7 @@ import numpy as np
 from bitl.evaluation.comparison import PolicyComparison
 from bitl.policies.kl_ucb import klUCB
 from bitl.policies.thompson_sampling import ThompsonSampling
-from bitl.datasets.synthetic import stochastic_batch
+from bitl.datasets.synthetic import make_stochastic_batch_dataset
 
 # --- Global parameters
 horizon = 20000
@@ -24,7 +24,7 @@ policies = [
 # --- First problem
 means = np.array([0.55, 0.60])
 # Generate some signal
-stream = stochastic_batch(means, horizon)
+stream = make_stochastic_batch_dataset(means, horizon)
 # Initialize simulation object with simul parameters
 # (n_runs, results_folder, ...)
 evaluator = PolicyComparison(
@@ -36,7 +36,7 @@ evaluator.print_metrics()
 
 # --- Second problem
 means = np.array([0.2, 0.8])
-stream = stochastic_batch(means, horizon)
+stream = make_stochastic_batch_dataset(means, horizon)
 
 evaluator = PolicyComparison(
     policies, means, stream,

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # Author: Aris Tritas <aris.tritas@u-psud.fr>
 # License: BSD 3-clause
-import sys
+import logging
 from time import time
 
 from .base import PolicyEvaluation
 
+logger = logging.getLevelName(__name__)
 
 class PolicyComparison(PolicyEvaluation):
     """
@@ -42,7 +43,7 @@ class PolicyComparison(PolicyEvaluation):
         t0 = time()
         for policy in self.policies:
             self.replay(policy)
-        sys.stdout.write("Comparison took {:.3f} seconds\n".format(time() - t0))
+        logger.info("Comparison took {:.3f} seconds\n".format(time() - t0))
 
     def output_html(self, policy):
         """ TODO: Output metrics as HTML """

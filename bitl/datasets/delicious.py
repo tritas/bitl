@@ -24,7 +24,6 @@ def load_delicious(filepath):
     https://webscope.sandbox.yahoo.com/catalog.php?datatype=r
 
     """
-
     stream_array = []
     try:
         with open(filepath) as logfile:
@@ -41,7 +40,5 @@ def load_delicious(filepath):
                 stream_array.append(sample)
     except FileNotFoundError:
         traceback.print_exc()
-
     stream_array = np.asarray(stream_array, dtype=np.dtype("O"))
-
     return stream_array

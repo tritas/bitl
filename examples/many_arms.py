@@ -9,7 +9,7 @@ from bitl.policies.random import RandomAction
 from bitl.policies.thompson_sampling import ThompsonSampling
 from bitl.policies.ucbf import UCBF
 from bitl.utils.plot import multiplot
-from bitl.datasets.synthetic import stochastic_batch
+from bitl.datasets.synthetic import make_stochastic_batch_dataset
 
 reward_matrix = np.zeros(100, dtype=np.float64)
 reward_matrix[:80] = 0.3
@@ -30,7 +30,7 @@ policies_lst = [
     UCBF(K=n_actions)
 ]
 # Generate some signal or load real-world cleaned and formatted dataset
-signal = stochastic_batch(reward_matrix, horizon)
+signal = make_stochastic_batch_dataset(reward_matrix, horizon)
 # Initialize simulation object with simul parameters
 # (n_runs, results_folder, ...)
 sim = PolicyComparison(policies=policies_lst,

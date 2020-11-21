@@ -148,9 +148,8 @@ def gaussian_mixture_matrix(dims, tupls_lst, rescale_clusters=False):
     return matrix
 
 
-def stochastic_batch(reward_means, n_samples):
-    """Generate a stream for some arm mean reward vector with Bernouilli
-    -distributed rewards
+def make_stochastic_batch_dataset(reward_means, n_samples):
+    """Generate a stream for some arm mean reward vector with Bernouilli-distributed rewards.
 
      Parameters
      ----------
@@ -237,7 +236,7 @@ def two_item_groups_stream(n_items, horizon, groups_ratio):
        Stream composed, for each timestep, of item id and corresponding reward
     """
     means = two_item_groups(n_items, groups_ratio)
-    stream = stochastic_batch(means, horizon)
+    stream = make_stochastic_batch_dataset(means, horizon)
     return stream
 
 

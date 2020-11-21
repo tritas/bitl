@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # Non-stationary Sequential Prediction with Confidence
 # Copyright (c) 2016, Odalric-Ambrym Maillard
-# Organization: Inria Saclay Ile de France
+# Organization: INRIA
 
+import numpy as np
 from numpy import dot, log, sin, sqrt
 from numpy.random import rand, randint, randn
 
